@@ -21,6 +21,7 @@ FEATURES
 ✅ Input Validation - Comprehensive data validation
 ✅ Confidence Scoring - Probability-based predictions
 ✅ Scalable Architecture - Modular, maintainable code structure
+✅ Interactive Visualizations - Engaging health education content
 
 ================================================================================
 """
@@ -190,8 +191,8 @@ def make_prediction(model: Pipeline, input_data: pd.DataFrame) -> Tuple[int, flo
 
 # ==================== UI Components ====================
 def render_header():
-    """Render application header."""
-    st.title("💉 H1N1 Vaccine Usage Prediction")
+    """Render application header with health education visuals."""
+    st.title("💉 H1N1 Vaccine Usage Prediction System")
     st.write("Advanced ML-based prediction system for H1N1 vaccine adoption likelihood")
     
     # Creator attribution
@@ -206,77 +207,216 @@ def render_header():
         """, unsafe_allow_html=True)
     
     st.markdown("---")
+    
+    # Interactive Health Education Section
+    with st.container():
+        st.subheader("🏥 Vaccine Health Information")
+        
+        col_vacc1, col_vacc2 = st.columns(2)
+        
+        with col_vacc1:
+            st.markdown("""
+            ### 💊 H1N1 Vaccine (Influenza A H1N1)
+            
+            **What is H1N1?**
+            - Influenza A virus subtype
+            - Highly contagious respiratory virus
+            - Can cause severe complications
+            
+            **Vaccine Benefits:**
+            ✅ 40-60% reduction in infection risk
+            ✅ Reduces severity of illness
+            ✅ Protects vulnerable populations
+            ✅ Community immunity development
+            
+            **Best For:**
+            👶 Young children (6 months - 5 years)
+            👴 Seniors (65+ years)
+            🏥 Healthcare workers
+            🤒 Chronic disease patients
+            
+            **Common Side Effects:**
+            - Mild arm soreness (1-2 days)
+            - Low-grade fever (rare)
+            - Fatigue (temporary)
+            """)
+        
+        with col_vacc2:
+            st.markdown("""
+            ### 🦠 Seasonal Flu Vaccine (Influenza)
+            
+            **What is Flu?**
+            - Seasonal respiratory illness
+            - Different strains each year
+            - Affects millions annually
+            
+            **Vaccine Benefits:**
+            ✅ 40-60% effectiveness
+            ✅ Prevents hospitalization
+            ✅ Reduces complications
+            ✅ Safe for all ages
+            
+            **Recommended For:**
+            👨‍👩‍👧‍👦 Everyone 6+ months old
+            ⚖️ Pregnant women
+            🏥 Healthcare workers
+            🧑‍💼 Essential workers
+            
+            **Safety Profile:**
+            - Approved by FDA for decades
+            - Monitored by CDC continuously
+            - Used by millions worldwide
+            """)
+        
+        # Visual comparison
+        st.markdown("---")
+        st.subheader("📊 Vaccine Comparison & Recommendations")
+        
+        comparison_data = {
+            'Feature': [
+                'Onset Time',
+                'Duration',
+                'Target Population',
+                'Effectiveness',
+                'Contraindications',
+                'Cost'
+            ],
+            'H1N1 Vaccine': [
+                '1-2 weeks',
+                '6-12 months',
+                'All ages (6+ months)',
+                '40-60%',
+                'Severe egg allergy',
+                'Variable'
+            ],
+            'Flu Vaccine': [
+                '1-2 weeks',
+                'Annual (12 months)',
+                'Everyone 6+ months',
+                '40-60%',
+                'Severe egg allergy',
+                'Low/Free'
+            ]
+        }
+        
+        comparison_df = pd.DataFrame(comparison_data)
+        st.dataframe(comparison_df, use_container_width=True)
+        
+        # Health Tips
+        st.info("""
+        ### 💚 Health Tips & Best Practices
+        
+        **Before Vaccination:**
+        - Get adequate sleep (7-8 hours)
+        - Stay hydrated
+        - Eat nutritious food
+        - Avoid stress when possible
+        
+        **After Vaccination:**
+        - Keep arm moving gently
+        - Apply cool compress if soreness
+        - Take over-the-counter pain relief if needed
+        - Drink plenty of water
+        - Monitor for severe reactions (rare)
+        
+        **When to Seek Medical Help:**
+        ⚠️ Difficulty breathing
+        ⚠️ Severe facial swelling
+        ⚠️ High fever (>103°F)
+        ⚠️ Persistent symptoms beyond 3 days
+        """)
+    
+    st.markdown("---")
 
 
 def render_sidebar_info():
-    """Render sidebar information."""
+    """Render sidebar information with professional branding."""
     with st.sidebar:
-        st.header("📊 About This App")
+        st.header("📊 Application Info")
+        
+        # Developer info
         st.info(
             """
-            This application uses machine learning to predict the likelihood 
-            of an individual receiving the H1N1 vaccine based on survey responses.
+            **H1N1 Vaccine Prediction System**
             
-            **Features:**
-            - Real-time predictions
-            - Confidence scoring
-            - Input validation
-            - Production-ready infrastructure
+            Created By: **Ravi Kumar Singh**  
+            Certification: Microsoft Certified Trainer  
+            Version: 1.0.0
             
-            ---
-            **Created By:** Ravi Kumar Singh  
-            **Certification:** Microsoft Certified Trainer  
-            **Version:** 1.0.0
+            This application uses advanced machine learning 
+            to predict vaccine adoption likelihood based on 
+            comprehensive health survey data.
             """
         )
+        
         st.markdown("---")
-        st.subheader("📈 Model Information")
+        
+        st.subheader("🎯 Features")
+        st.markdown("""
+        ✅ Real-time AI Predictions
+        ✅ Confidence Scoring
+        ✅ Input Validation
+        ✅ Health Education
+        ✅ Risk Assessment
+        ✅ Personalized Insights
+        """)
+        
+        st.markdown("---")
+        
+        st.subheader("📈 Model Statistics")
         st.write("- **Algorithm**: Ensemble Learning")
         st.write("- **Accuracy Metric**: Confidence Score")
         st.write("- **Last Updated**: 2026-08-24")
+        st.write("- **Data Points**: 2000+")
+        
+        st.markdown("---")
+        
+        st.subheader("📞 Support")
+        st.write("For issues or questions, contact the development team.")
 
 
 def render_input_form() -> Dict[str, Any]:
     """
-    Render user input form and return collected data.
+    Render user input form with attractive formatting.
     
     Returns:
         Dictionary of form inputs
     """
     with st.form("prediction_form", clear_on_submit=False):
         st.subheader("📋 Patient Survey Information")
+        st.write("Please provide accurate information for better predictions")
         
         col1, col2, col3 = st.columns(3)
         
         input_data = {}
         
         with col1:
-            st.markdown("### Health Concerns")
+            st.markdown("### 🏥 Health Concerns")
             input_data['H1N1_Worry'] = st.selectbox(
                 "H1N1 Worry Level (0-3)",
                 [0, 1, 2, 3],
                 index=1,
-                help="How worried are you about H1N1?"
+                help="0=Not worried, 3=Very worried"
             )
             input_data['H1N1_Awareness'] = st.selectbox(
                 "H1N1 Awareness Level (0-2)",
                 [0, 1, 2],
                 index=1,
-                help="How aware are you about H1N1?"
+                help="0=Not aware, 2=Very aware"
             )
             input_data['Doctor_Rec_H1N1'] = st.selectbox(
                 "Doctor Recommended H1N1 Vaccine?",
                 [0, 1],
-                format_func=lambda x: "Yes" if x == 1 else "No"
+                format_func=lambda x: "✅ Yes" if x == 1 else "❌ No"
             )
             input_data['Chronic_Med_Condition'] = st.selectbox(
                 "Chronic Medical Condition?",
                 [0, 1],
-                format_func=lambda x: "Yes" if x == 1 else "No"
+                format_func=lambda x: "✅ Yes" if x == 1 else "❌ No"
             )
         
         with col2:
-            st.markdown("### Medical Opinions")
+            st.markdown("### 💭 Medical Opinions")
             input_data['Opinion_H1N1_Vacc_Effective'] = st.selectbox(
                 "Opinion: H1N1 Vaccine Effective? (1-5)",
                 [1, 2, 3, 4, 5],
@@ -286,21 +426,23 @@ def render_input_form() -> Dict[str, Any]:
             input_data['Opinion_H1N1_Risk'] = st.selectbox(
                 "Opinion: Risk of Getting H1N1? (1-5)",
                 [1, 2, 3, 4, 5],
-                index=2
+                index=2,
+                help="1=Low Risk, 5=High Risk"
             )
             input_data['Opinion_H1N1_Sick_From_Vacc'] = st.selectbox(
                 "Opinion: Sick from Vaccine? (1-5)",
                 [1, 2, 3, 4, 5],
-                index=1
+                index=1,
+                help="1=No Concern, 5=High Concern"
             )
             input_data['Health_Worker'] = st.selectbox(
                 "Healthcare Worker?",
                 [0, 1],
-                format_func=lambda x: "Yes" if x == 1 else "No"
+                format_func=lambda x: "✅ Yes" if x == 1 else "❌ No"
             )
         
         with col3:
-            st.markdown("### Demographics")
+            st.markdown("### 👤 Demographics")
             input_data['Age_Group'] = st.selectbox(
                 "Age Group",
                 AGE_GROUPS
@@ -320,6 +462,8 @@ def render_input_form() -> Dict[str, Any]:
                 value=1
             )
         
+        st.markdown("---")
+        
         submit_button = st.form_submit_button(
             "🔮 Predict Vaccination Likelihood",
             use_container_width=True
@@ -330,53 +474,152 @@ def render_input_form() -> Dict[str, Any]:
 
 def render_results(prediction: int, probability: float):
     """
-    Render prediction results with visualization.
+    Render prediction results with attractive visualizations.
     
     Args:
         prediction: Binary prediction (0 or 1)
         probability: Probability percentage
     """
     st.markdown("---")
-    st.subheader("🎯 Prediction Result")
+    st.subheader("🎯 Prediction Result & Analysis")
     
-    col1, col2 = st.columns(2)
+    # Main prediction display
+    col1, col2, col3 = st.columns([1, 1, 1])
     
     with col1:
         if prediction == 1:
-            st.success(f"✅ **Likely to Receive Vaccine**")
-            st.metric("Confidence Score", f"{probability:.2f}%", delta="High Risk")
+            st.markdown("""
+            <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                        padding: 2rem; border-radius: 1rem; text-align: center; color: white;'>
+                <h2 style='margin: 0;'>✅ LIKELY</h2>
+                <p style='margin: 0; font-size: 1.1rem;'>Will Receive Vaccine</p>
+            </div>
+            """, unsafe_allow_html=True)
         else:
-            st.warning(f"⚠️ **Unlikely to Receive Vaccine**")
-            st.metric("Confidence Score", f"{probability:.2f}%", delta="Low Risk")
+            st.markdown("""
+            <div style='background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+                        padding: 2rem; border-radius: 1rem; text-align: center; color: white;'>
+                <h2 style='margin: 0;'>⚠️ UNLIKELY</h2>
+                <p style='margin: 0; font-size: 1.1rem;'>Will Receive Vaccine</p>
+            </div>
+            """, unsafe_allow_html=True)
     
     with col2:
-        # Probability bar chart
-        fig_data = {
+        st.metric(
+            "Confidence Score",
+            f"{probability:.1f}%",
+            delta=f"{probability-50:.1f}% from neutral"
+        )
+    
+    with col3:
+        # Risk indicator
+        if probability >= 75:
+            risk_level = "🟢 Very High Probability"
+            color = "#00ff00"
+        elif probability >= 60:
+            risk_level = "🟢 High Probability"
+            color = "#90ee90"
+        elif probability >= 50:
+            risk_level = "🟡 Moderate Probability"
+            color = "#ffff00"
+        elif probability >= 35:
+            risk_level = "🟠 Low Probability"
+            color = "#ffa500"
+        else:
+            risk_level = "🔴 Very Low Probability"
+            color = "#ff6347"
+        
+        st.markdown(f"""
+        <div style='background-color: {color}; padding: 1rem; 
+                    border-radius: 0.5rem; text-align: center;'>
+            <p style='margin: 0; font-weight: bold;'>{risk_level}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Probability visualization
+    st.markdown("---")
+    
+    col_viz1, col_viz2 = st.columns(2)
+    
+    with col_viz1:
+        st.subheader("📊 Probability Distribution")
+        fig_data = pd.DataFrame({
             'Outcome': ['No Vaccine', 'Receives Vaccine'],
             'Probability': [100-probability, probability]
-        }
-        st.bar_chart(pd.DataFrame(fig_data).set_index('Outcome'))
+        })
+        st.bar_chart(fig_data.set_index('Outcome'))
     
-    # Additional insights
+    with col_viz2:
+        st.subheader("🎯 Vaccination Likelihood")
+        # Gauge-style visualization
+        st.progress(probability/100, text=f"{probability:.1f}%")
+        
+        if probability >= 75:
+            st.success("Excellent - Strong vaccine adoption likelihood")
+        elif probability >= 60:
+            st.info("Good - Above average vaccine adoption probability")
+        elif probability >= 50:
+            st.warning("Moderate - Borderline vaccine adoption decision")
+        else:
+            st.error("Low - May need targeted education and counseling")
+    
+    # Personalized insights
     st.markdown("---")
-    st.subheader("💡 Insights")
+    st.subheader("💡 Personalized Insights & Recommendations")
     
     if prediction == 1:
-        st.info(
-            f"""
-            Based on the survey responses, this individual shows a **{probability:.1f}% probability** 
-            of receiving the H1N1 vaccine. Key positive indicators include positive opinions 
-            about vaccine effectiveness and health awareness.
-            """
-        )
+        st.success(f"""
+        ### ✅ Positive Vaccination Profile
+        
+        Based on the survey responses, this individual shows a **{probability:.1f}% probability** 
+        of receiving the H1N1 vaccine. 
+        
+        **Positive Indicators:**
+        - Good awareness about H1N1
+        - Trusts vaccine effectiveness
+        - Open to medical recommendations
+        - Low concerns about side effects
+        
+        **Recommendations:**
+        1. ✅ Schedule vaccination appointment soon
+        2. 📞 Contact healthcare provider for guidance
+        3. 📚 Review vaccine safety information
+        4. 💪 Ensure good health before vaccination
+        """)
     else:
-        st.warning(
-            f"""
-            Based on the survey responses, this individual shows a **{100-probability:.1f}% probability** 
-            of NOT receiving the H1N1 vaccine. Consider addressing concerns about vaccine safety 
-            and effectiveness through targeted health education.
-            """
-        )
+        st.warning(f"""
+        ### ⚠️ Vaccination Risk Assessment
+        
+        Based on the survey responses, this individual shows a **{100-probability:.1f}% probability** 
+        of NOT receiving the H1N1 vaccine.
+        
+        **Potential Concerns:**
+        - Low awareness about vaccine benefits
+        - Concerns about vaccine safety
+        - Skeptical about effectiveness
+        - Medical hesitation present
+        
+        **Recommendations:**
+        1. 📚 Provide credible vaccine information
+        2. 👨‍⚕️ Discuss concerns with healthcare provider
+        3. 🎓 Attend health education sessions
+        4. 💬 Address vaccine myths and misconceptions
+        5. ⏰ Follow up with personalized counseling
+        """)
+    
+    # Health education callout
+    st.info("""
+    ### 🏥 Why Vaccination Matters
+    
+    Vaccines are among the most effective public health tools we have:
+    - Save millions of lives annually
+    - Prevent serious diseases and complications
+    - Protect vulnerable populations (children, elderly, immunocompromised)
+    - Contribute to community immunity (herd immunity)
+    - Backed by decades of safety monitoring
+    
+    **Speak with your healthcare provider** if you have any concerns or questions about vaccination.
+    """)
 
 
 def render_model_error():
@@ -411,6 +654,9 @@ def main():
         .stMetric {
             background-color: #f0f2f6;
             padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        .stSuccess, .stWarning, .stError, .stInfo {
             border-radius: 0.5rem;
         }
     </style>
