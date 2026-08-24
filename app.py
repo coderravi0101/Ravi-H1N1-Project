@@ -1,6 +1,28 @@
 """
 H1N1 Vaccine Prediction Application
-Production-ready Streamlit application for H1N1 vaccine usage prediction.
+Production-ready Streamlit application for H1N1 vaccine adoption likelihood prediction.
+
+================================================================================
+PROJECT INFORMATION
+================================================================================
+Created By: Ravi Kumar Singh
+Certified Microsoft Trainer
+Professional Development: Advanced Machine Learning & Web Applications
+
+Version: 1.0.0
+Last Updated: August 24, 2026
+
+================================================================================
+FEATURES
+================================================================================
+✅ Advanced ML-based Predictions - Ensemble learning models
+✅ Production-Ready Infrastructure - Logging, validation, error handling
+✅ Professional UI/UX - Clean, intuitive interface design
+✅ Input Validation - Comprehensive data validation
+✅ Confidence Scoring - Probability-based predictions
+✅ Scalable Architecture - Modular, maintainable code structure
+
+================================================================================
 """
 
 import logging
@@ -171,6 +193,18 @@ def render_header():
     """Render application header."""
     st.title("💉 H1N1 Vaccine Usage Prediction")
     st.write("Advanced ML-based prediction system for H1N1 vaccine adoption likelihood")
+    
+    # Creator attribution
+    col1, col2, col3 = st.columns([2, 2, 1])
+    with col3:
+        st.markdown("""
+        <div style='text-align: right; font-size: 0.85rem; color: #666;'>
+        <b>Created By:</b><br/>
+        Ravi Kumar Singh<br/>
+        <i>Certified Microsoft Trainer</i>
+        </div>
+        """, unsafe_allow_html=True)
+    
     st.markdown("---")
 
 
@@ -188,6 +222,11 @@ def render_sidebar_info():
             - Confidence scoring
             - Input validation
             - Production-ready infrastructure
+            
+            ---
+            **Created By:** Ravi Kumar Singh  
+            **Certification:** Microsoft Certified Trainer  
+            **Version:** 1.0.0
             """
         )
         st.markdown("---")
