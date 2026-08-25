@@ -358,4 +358,71 @@ def render_header():
         # Health Tips
         st.info("""
         ### 💚 Health Tips & Best Practices
+        - Get vaccinated annually when eligible
+        - Maintain good hand hygiene
+        - Avoid close contact with sick individuals
+        - Consult a healthcare provider if symptomatic
+        """)
 
+
+def render_inputs():
+    """Render sidebar inputs and return input dictionary and submit flag."""
+    st.sidebar.header("Survey Inputs")
+    with st.sidebar.form(key='input_form'):
+        H1N1_Worry = st.slider("H1N1 Worry (0-3)", 0, 3, 1)
+        H1N1_Awareness = st.slider("H1N1 Awareness (0-2)", 0, 2, 1)
+        Opinion_H1N1_Vacc_Effective = st.slider("Opinion: Vaccine Effective (1-5)", 1, 5, 3)
+        Opinion_H1N1_Risk = st.slider("Opinion: Vaccine Risk (1-5)", 1, 5, 3)
+        Opinion_H1N1_Sick_From_Vacc = st.slider("Opinion: Sick From Vaccine (1-5)", 1, 5, 3)
+        No_Of_Adults = st.selectbox("Number of Adults at Home", [0, 1, 2, 3])
+        Age_Group = st.selectbox("Age Group", AGE_GROUPS)
+        Education = st.selectbox("Education", EDUCATION_LEVELS)
+        Sex = st.selectbox("Sex", GENDER_OPTIONS)
+        Doctor_Rec_H1N1 = st.checkbox("Doctor Recommended H1N1 Vaccine")
+        Chronic_Med_Condition = st.checkbox("Chronic Medical Condition")
+        Health_Worker = st.checkbox("Health Worker")
+        submit = st.form_submit_button("Predict")
+
+    input_dict = {
+        'H1N1_Worry': H1N1_Worry,
+        'H1N1_Awareness': H1N1_Awareness,
+        'Opinion_H1N1_Vacc_Effective': Opinion_H1N1_Vacc_Effective,
+        'Opinion_H1N1_Risk': Opinion_H1N1_Risk,
+        'Opinion_H1N1_Sick_From_Vacc': Opinion_H1N1_Sick_From_Vacc,
+        'No_Of_Adults': No_Of_Adults,
+        'Age_Group': Age_Group,
+        'Education': Education,
+        'Sex': Sex,
+        'Doctor_Rec_H1N1': int(Doctor_Rec_H1N1),
+        'Chronic_Med_Condition': int(Chronic_Med_Condition),
+        'Health_Worker': int(Health_Worker)
+    }
+
+    return submit, input_dict
+
+
+def main():
+    st.set_page_config(**PAGE_CONFIG)
+    model = load_model()
+    render_header()
+    submit, input_dict = render_inputs()
+    if submit:
+        valid, msg = validate_input(input_dict)
+        if not valid:
+            st.error(msg)
+            return
+        input_df = pd.DataFrame([input_dict])
+        try:
+            pred, prob = make_prediction(model, input_df)
+            if pred == 1:
+                st.success("Prediction: Likely to take H1N1 vaccine")
+            else:
+                st.warning("Prediction: Unlikely to take H1N1 vaccine")
+            st.info(f"Confidence: {prob:.2f}%")
+        except Exception as e:
+            logger.exception("Failed to make prediction")
+            st.error(f"Prediction failed: {e}")
+
+
+if __name__ == "__main__":
+    main()
