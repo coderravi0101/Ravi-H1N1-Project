@@ -9,8 +9,8 @@ Created By: Ravi Kumar Singh
 Certified Microsoft Trainer
 Professional Development: Advanced Machine Learning & Web Applications
 
-Version: 1.0.0
-Last Updated: August 24, 2026
+Version: 1.0.1
+Last Updated: August 25, 2026
 
 ================================================================================
 FEATURES
@@ -19,9 +19,10 @@ FEATURES
 ✅ Production-Ready Infrastructure - Logging, validation, error handling
 ✅ Professional UI/UX - Clean, intuitive interface design
 ✅ Input Validation - Comprehensive data validation
-✅ Confidence Scoring - Probability-based predictions
+✅ Confidence Scoring - Probability-based predictions with clear recommendations
 ✅ Scalable Architecture - Modular, maintainable code structure
 ✅ Interactive Visualizations - Engaging health education content
+✅ Report Generation - Downloadable CSV/Excel report for predictions
 
 ================================================================================
 """
@@ -30,6 +31,8 @@ import logging
 import os
 from typing import Optional, Tuple, Dict, Any
 from pathlib import Path
+import io
+from datetime import datetime
 
 import streamlit as st
 import pandas as pd
@@ -253,12 +256,57 @@ def make_prediction(model: Pipeline, input_data: pd.DataFrame) -> Tuple[int, flo
         raise
 
 
+# ==================== Recommendation Helper ====================
+def recommendation_from_confidence(pred: int, prob: float) -> Tuple[str, str]:
+    """
+    Return a short recommendation label and a longer guidance message
+    based on predicted class and confidence (prob as percentage 0-100).
+    """
+    if pred == 1:
+        if prob >= 70:
+            label = "Strongly recommended"
+            message = (
+                "Go and take the H1N1 vaccine — model indicates a high likelihood that you would accept the vaccine. "
+                "Getting vaccinated reduces your risk of infection and protects those around you."
+            )
+        elif prob >= 50:
+            label = "Recommended"
+            message = (
+                "Consider taking the H1N1 vaccine — model indicates a moderate likelihood of acceptance. "
+                "Discuss with your healthcare provider to confirm suitability."
+            )
+        else:
+            label = "Consider"
+            message = (
+                "Model shows low-to-moderate confidence for acceptance, but there may be benefits to vaccination. "
+                "Please consult a healthcare provider for personalized advice."
+            )
+    else:
+        if prob >= 70:
+            label = "Not recommended by profile"
+            message = (
+                "Model indicates you are unlikely to take the vaccine. If you are unsure, discuss concerns with a healthcare provider. "
+                "Vaccination benefits will vary depending on personal health and risk factors."
+            )
+        elif prob >= 50:
+            label = "Less likely"
+            message = (
+                "Model suggests you are somewhat unlikely to take the vaccine. Review vaccine benefits and consult a provider if in doubt."
+            )
+        else:
+            label = "Unlikely"
+            message = (
+                "Model confidence is low for vaccine uptake. If you are worried about influenza, consider reaching out to a healthcare professional."
+            )
+    return label, message
+
+
 # ==================== UI Components ====================
 def render_header():
     """Render application header with health education visuals."""
     st.title("💉 H1N1 Vaccine Usage Prediction System")
     st.write("Advanced ML-based prediction system for H1N1 vaccine adoption likelihood")
-    
+
     # Creator attribution
     col1, col2, col3 = st.columns([2, 2, 1])
     with col3:
@@ -269,62 +317,62 @@ def render_header():
         <i>Certified Microsoft Trainer</i>
         </div>
         """, unsafe_allow_html=True)
-    
+
     st.markdown("---")
-    
+
     # Interactive Health Education Section
     with st.container():
         st.subheader("🏥 Vaccine Health Information")
-        
+
         col_vacc1, col_vacc2 = st.columns(2)
-        
+
         with col_vacc1:
             st.markdown("""
             ### 💊 H1N1 Vaccine (Influenza A H1N1)
-            
+
             **What is H1N1?**
             - Influenza A virus subtype
             - Highly contagious respiratory virus
             - Can cause severe complications
-            
+
             **Vaccine Benefits:**
             ✅ 40-60% reduction in infection risk
             ✅ Reduces severity of illness
             ✅ Protects vulnerable populations
             ✅ Community immunity development
-            
+
             **Best For:**
             👶 Young children (6 months - 5 years)
             👴 Seniors (65+ years)
             🏥 Healthcare workers
             🤒 Chronic disease patients
-            
+
             **Common Side Effects:**
             - Mild arm soreness (1-2 days)
             - Low-grade fever (rare)
             - Fatigue (temporary)
             """)
-        
+
         with col_vacc2:
             st.markdown("""
             ### 🦠 Seasonal Flu Vaccine (Influenza)
-            
+
             **What is Flu??**
             - Seasonal respiratory illness
             - Different strains each year
             - Affects millions annually
-            
+
             **Vaccine Benefits:**
             ✅ 40-60% effectiveness
             ✅ Prevents hospitalization
             ✅ Reduces complications
             ✅ Safe for all ages
             """)
-        
+
         # Visual comparison
         st.markdown("---")
         st.subheader("📊 Vaccine Comparison & Recommendations")
-        
+
         comparison_data = {
             'Feature': [
                 'Onset Time',
@@ -351,10 +399,10 @@ def render_header():
                 'Low/Free'
             ]
         }
-        
+
         comparison_df = pd.DataFrame(comparison_data)
         st.dataframe(comparison_df, use_container_width=True)
-        
+
         # Health Tips
         st.info("""
         ### 💚 Health Tips & Best Practices
@@ -401,6 +449,51 @@ def render_inputs():
     return submit, input_dict
 
 
+def build_report(input_dict: Dict[str, Any], pred: int, prob: float, label: str, message: str) -> pd.DataFrame:
+    """
+    Build a one-row report DataFrame containing inputs, prediction, probability,
+    recommendation label, and detailed message.
+    """
+    # Flatten inputs for display
+    report = input_dict.copy()
+    report.update({
+        'Prediction': 'Yes' if pred == 1 else 'No',
+        'Confidence (%)': round(prob, 2),
+        'Recommendation': label,
+        'Recommendation Details': message,
+        'Timestamp': datetime.utcnow().isoformat() + 'Z'
+    })
+    df = pd.DataFrame([report])
+    # Order columns: inputs first, then metadata
+    cols = [k for k in input_dict.keys()] + ['Prediction', 'Confidence (%)', 'Recommendation', 'Recommendation Details', 'Timestamp']
+    return df[cols]
+
+
+def download_report_buttons(df: pd.DataFrame, file_prefix: str = "h1n1_report"):
+    """Provide CSV and Excel download buttons for the report DataFrame."""
+    csv_bytes = df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="Download report as CSV",
+        data=csv_bytes,
+        file_name=f"{file_prefix}.csv",
+        mime='text/csv'
+    )
+
+    # Excel
+    towrite = io.BytesIO()
+    with pd.ExcelWriter(towrite, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Report')
+        writer.save()
+    towrite.seek(0)
+    st.download_button(
+        label="Download report as Excel",
+        data=towrite,
+        file_name=f"{file_prefix}.xlsx",
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+
+# ==================== Main App Flow ====================
 def main():
     st.set_page_config(**PAGE_CONFIG)
     model = load_model()
@@ -414,11 +507,29 @@ def main():
         input_df = pd.DataFrame([input_dict])
         try:
             pred, prob = make_prediction(model, input_df)
-            if pred == 1:
-                st.success("Prediction: Likely to take H1N1 vaccine")
-            else:
-                st.warning("Prediction: Unlikely to take H1N1 vaccine")
-            st.info(f"Confidence: {prob:.2f}%")
+
+            # Recommendation logic
+            label, message = recommendation_from_confidence(pred, prob)
+
+            # User-facing messaging
+            col_a, col_b = st.columns([2, 1])
+            with col_a:
+                if pred == 1:
+                    st.success("Prediction: Likely to take H1N1 vaccine")
+                else:
+                    st.warning("Prediction: Unlikely to take H1N1 vaccine")
+                st.info(f"Confidence: {prob:.2f}%")
+                st.markdown(f"**Recommendation:** {label}")
+                st.write(message)
+
+            # Report table and downloads
+            report_df = build_report(input_dict, pred, prob, label, message)
+            st.markdown("---")
+            st.subheader("📄 Prediction Report")
+            st.dataframe(report_df.T, use_container_width=True)
+
+            download_report_buttons(report_df, file_prefix=f"h1n1_report_{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}")
+
         except Exception as e:
             logger.exception("Failed to make prediction")
             st.error(f"Prediction failed: {e}")
