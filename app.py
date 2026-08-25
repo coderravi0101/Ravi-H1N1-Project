@@ -470,7 +470,13 @@ def build_report(input_dict: Dict[str, Any], pred: int, prob: float, label: str,
 
 
 def download_report_buttons(df: pd.DataFrame, file_prefix: str = "h1n1_report"):
-    """Provide CSV and Excel download buttons for the report DataFrame."""
+    """Provide CSV and Excel download buttons for the report DataFrame.
+
+    This function will try to use openpyxl or xlsxwriter (whichever is installed).
+    If neither is available, it will still provide a CSV download and show a
+    helpful message telling the user how to enable Excel export.
+    """
+    # CSV always available
     csv_bytes = df.to_csv(index=False).encode('utf-8')
     st.download_button(
         label="Download report as CSV",
@@ -479,18 +485,43 @@ def download_report_buttons(df: pd.DataFrame, file_prefix: str = "h1n1_report"):
         mime='text/csv'
     )
 
-    # Excel
-    towrite = io.BytesIO()
-    with pd.ExcelWriter(towrite, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='Report')
-        writer.save()
-    towrite.seek(0)
-    st.download_button(
-        label="Download report as Excel",
-        data=towrite,
-        file_name=f"{file_prefix}.xlsx",
-        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
+    # Try to provide Excel if an engine is available
+    engine = None
+    try:
+        import openpyxl  # noqa: F401
+        engine = 'openpyxl'
+    except Exception:
+        try:
+            import xlsxwriter  # noqa: F401
+            engine = 'xlsxwriter'
+        except Exception:
+            engine = None
+
+    if engine is None:
+        st.warning(
+            "Excel export is disabled because neither 'openpyxl' nor 'xlsxwriter' is installed. "
+            "To enable Excel downloads install one of them, e.g.: `pip install openpyxl`"
+        )
+        return
+
+    # Create Excel in-memory and provide download
+    try:
+        towrite = io.BytesIO()
+        with pd.ExcelWriter(towrite, engine=engine) as writer:
+            df.to_excel(writer, index=False, sheet_name='Report')
+        towrite.seek(0)
+        st.download_button(
+            label="Download report as Excel",
+            data=towrite.getvalue(),
+            file_name=f"{file_prefix}.xlsx",
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+    except Exception as e:
+        logger.exception("Failed to generate Excel report: %s", e)
+        st.error(
+            "Failed to create Excel report. You can still download CSV. "
+            "If this persists, install/upgrade 'openpyxl' or 'xlsxwriter' and try again."
+        )
 
 
 # ==================== Main App Flow ====================
